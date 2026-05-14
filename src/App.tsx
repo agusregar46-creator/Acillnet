@@ -84,12 +84,23 @@ export default function App() {
                     </p>
                   </div>
 
-                  <a
-                    href="/auth"
-                    className="inline-flex rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
-                  >
-                    Login Sekarang
-                  </a>
+                 <button
+  onClick={async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+  }}
+  className="inline-flex rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
+>
+  Login Google
+</button>
                 </div>
               )}
             </div>
