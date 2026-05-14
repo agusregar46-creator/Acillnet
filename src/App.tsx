@@ -8,15 +8,66 @@ import { supabase } from "./integrations/supabase/client";
 export default function App() {
   const { user, isAdmin } = useAuth();
 
+  // =========================
+  // LOGOUT
+  // =========================
   async function logout() {
     await supabase.auth.signOut();
     window.location.reload();
   }
 
+  // =========================
+  // SIGNUP EMAIL
+  // =========================
+  async function signup() {
+    const email = prompt("Masukkan email:");
+
+    if (!email) return;
+
+    const password = prompt(
+      "Masukkan password minimal 6 karakter:"
+    );
+
+    if (!password) return;
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Akun berhasil dibuat. Cek email verifikasi.");
+  }
+
+  // =========================
+  // LOGIN GOOGLE
+  // =========================
+  async function loginGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-white">
+      {/* HEADER */}
       <SiteHeader />
 
+      {/* MAIN */}
       <main className="container mx-auto px-6 py-10">
         {/* HERO */}
         <section className="py-20">
@@ -44,6 +95,7 @@ export default function App() {
                     </p>
                   </div>
 
+                  {/* EMAIL */}
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <p className="text-sm text-muted-foreground">
                       Email
@@ -54,6 +106,7 @@ export default function App() {
                     </p>
                   </div>
 
+                  {/* ROLE */}
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <p className="text-sm text-muted-foreground">
                       Role
@@ -64,6 +117,7 @@ export default function App() {
                     </p>
                   </div>
 
+                  {/* LOGOUT */}
                   <button
                     onClick={logout}
                     className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
@@ -84,23 +138,22 @@ export default function App() {
                     </p>
                   </div>
 
-                 <button
-  onClick={async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
+                  {/* BUTTONS */}
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={loginGoogle}
+                      className="rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
+                    >
+                      Login Google
+                    </button>
 
-    if (error) {
-      alert(error.message);
-    }
-  }}
-  className="inline-flex rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
->
-  Login Google
-</button>
+                    <button
+                      onClick={signup}
+                      className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 font-medium text-white transition hover:bg-white/20"
+                    >
+                      Daftar Email
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -113,6 +166,7 @@ export default function App() {
         </section>
       </main>
 
+      {/* FLOATING WHATSAPP */}
       <WhatsAppFab />
     </div>
   );
