@@ -1,6 +1,7 @@
 import { SiteHeader } from "./components/SiteHeader";
 import { WhatsAppFab } from "./components/WhatsAppFab";
 import { FaqSection } from "./components/FaqSection";
+import { useAuth } from "./hooks/useAuth";
 
 export default function App() {
   return (
