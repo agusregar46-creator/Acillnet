@@ -97,20 +97,23 @@ export function CheckoutDialog({
         latestBlockhash.blockhash;
 
       // =========================
-      // SIGN & SEND
+      // SIGN TRANSACTION
       // =========================
       const signed =
         await provider.signTransaction(
           transaction
         );
 
+      // =========================
+      // SEND TRANSACTION
+      // =========================
       const txid =
         await connection.sendRawTransaction(
           signed.serialize()
         );
 
       // =========================
-      // CONFIRM
+      // CONFIRM TRANSACTION
       // =========================
       await connection.confirmTransaction(txid);
 
@@ -120,14 +123,25 @@ export function CheckoutDialog({
       // SAVE TO SUPABASE
       // =========================
       await supabase
-        .from("transactions")
+        .from("payments")
         .insert({
-          user_id: user?.id,
-          wallet_address: address,
+          invoice: `INV-${Date.now()}`,
+
           package_name: pkg.name,
+
+          customer_email: user?.email,
+
+          wallet: address,
+
+          network: "solana-devnet",
+
           amount_sol: pkg.price_sol,
-          tx_signature: txid,
+
+          signature: txid,
+
           status: "paid",
+
+          user_id: user?.id,
         });
 
       alert(
@@ -168,7 +182,7 @@ export function CheckoutDialog({
           </button>
         </div>
 
-        {/* PACKAGE */}
+        {/* PACKAGE INFO */}
         <div className="mt-8 space-y-4">
           <div className="rounded-2xl bg-white/5 p-4">
             <p className="text-sm text-muted-foreground">
