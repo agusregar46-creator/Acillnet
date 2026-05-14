@@ -1,152 +1,256 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, ExternalLink, AlertTriangle } from "lucide-react";
-import type { Package } from "@/lib/api";
-import { recordPayment } from "@/lib/api";
-import { payWithSol, SOLANA_NETWORK, ISP_RECEIVER_ADDRESS, shortAddr } from "@/lib/solana";
+  Connection,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
 
-type Props = { pkg: Package | null; onClose: () => void };
+type PackageType = {
+  id: string;
+  name: string;
+  speed_mbps: number;
+  duration_days: number;
+  price_sol: number;
+};
 
-type Status =
-  | { kind: "idle" }
-  | { kind: "paying" }
-  | { kind: "ok"; signature: string; invoice: string }
-  | { kind: "err"; message: string };
+type Props = {
+  pkg: PackageType | null;
+  onClose: () => void;
+};
 
-export function CheckoutDialog({ pkg, onClose }: Props) {
+const MERCHANT_WALLET =
+  "11111111111111111111111111111111";
+
+export function CheckoutDialog({
+  pkg,
+  onClose,
+}: Props) {
   const { address, connect } = useWallet();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<Status>({ kind: "idle" });
+  const { user } = useAuth();
+
+  const [loading, setLoading] = useState(false);
+  const [signature, setSignature] = useState<string | null>(
+    null
+  );
+
+  const connection = useMemo(
+    () =>
+      new Connection(
+        "https://api.devnet.solana.com",
+        "confirmed"
+      ),
+    []
+  );
 
   if (!pkg) return null;
 
   async function pay() {
-    if (!pkg) return;
-    if (!name || !email) {
-      setStatus({ kind: "err", message: "Isi nama dan email dulu." });
-      return;
-    }
-    if (!address) {
-      await connect();
-      return;
-    }
     try {
-      setStatus({ kind: "paying" });
-      const signature = await payWithSol(pkg.price_sol);
-      const rec = await recordPayment({
-        package_id: pkg.id,
-        wallet: address,
-        signature,
-        amount_sol: pkg.price_sol,
-        customer_name: name,
-        customer_email: email,
-        network: SOLANA_NETWORK,
-      });
-      setStatus({ kind: "ok", signature, invoice: rec.invoice });
-    } catch (e) {
-      setStatus({ kind: "err", message: (e as Error).message });
+      setLoading(true);
+
+      // =========================
+      // CONNECT WALLET
+      // =========================
+      if (!address) {
+        await connect();
+        return;
+      }
+
+      const provider = (window as any).phantom?.solana;
+
+      if (!provider) {
+        alert("Phantom Wallet tidak ditemukan");
+        return;
+      }
+
+      // =========================
+      // CREATE TRANSACTION
+      // =========================
+      const fromPubkey = new PublicKey(address);
+
+      const toPubkey = new PublicKey(
+        MERCHANT_WALLET
+      );
+
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey,
+          toPubkey,
+          lamports:
+            pkg.price_sol * LAMPORTS_PER_SOL,
+        })
+      );
+
+      transaction.feePayer = fromPubkey;
+
+      const latestBlockhash =
+        await connection.getLatestBlockhash();
+
+      transaction.recentBlockhash =
+        latestBlockhash.blockhash;
+
+      // =========================
+      // SIGN & SEND
+      // =========================
+      const signed =
+        await provider.signTransaction(
+          transaction
+        );
+
+      const txid =
+        await connection.sendRawTransaction(
+          signed.serialize()
+        );
+
+      // =========================
+      // CONFIRM
+      // =========================
+      await connection.confirmTransaction(txid);
+
+      setSignature(txid);
+
+      // =========================
+      // SAVE TO SUPABASE
+      // =========================
+      await supabase
+        .from("transactions")
+        .insert({
+          user_id: user?.id,
+          wallet_address: address,
+          package_name: pkg.name,
+          amount_sol: pkg.price_sol,
+          tx_signature: txid,
+          status: "paid",
+        });
+
+      alert(
+        "Pembayaran berhasil 🚀"
+      );
+    } catch (err: any) {
+      console.error(err);
+
+      alert(
+        err?.message ??
+          "Pembayaran gagal"
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
-  const explorer = (sig: string) =>
-    `https://explorer.solana.com/tx/${sig}?cluster=${SOLANA_NETWORK}`;
-
   return (
-    <Dialog open={!!pkg} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="glass max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">
-            Checkout · <span className="text-gradient">{pkg.name}</span>
-          </DialogTitle>
-          <DialogDescription>
-            {pkg.speed_mbps} Mbps · {pkg.duration_days} hari ·{" "}
-            <span className="font-mono text-foreground">{pkg.price_sol} SOL</span>
-          </DialogDescription>
-        </DialogHeader>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-6">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111] p-8 text-white">
+        {/* HEADER */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">
+              Checkout Paket
+            </h2>
 
-        {status.kind === "ok" ? (
-          <div className="space-y-4 py-2">
-            <div className="flex items-start gap-3 rounded-lg border border-[var(--solana)]/30 bg-[var(--solana)]/10 p-4">
-              <CheckCircle2 className="mt-0.5 h-5 w-5 text-[var(--solana)]" />
-              <div className="space-y-1 text-sm">
-                <p className="font-semibold">Pembayaran berhasil!</p>
-                <p className="text-muted-foreground">
-                  Invoice <span className="font-mono text-foreground">{status.invoice}</span>
-                </p>
-              </div>
-            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Pembayaran menggunakan Solana 🚀
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="rounded-xl border border-white/10 px-3 py-1 text-sm"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* PACKAGE */}
+        <div className="mt-8 space-y-4">
+          <div className="rounded-2xl bg-white/5 p-4">
+            <p className="text-sm text-muted-foreground">
+              Paket
+            </p>
+
+            <p className="text-xl font-semibold">
+              {pkg.name}
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-white/5 p-4">
+            <p className="text-sm text-muted-foreground">
+              Speed
+            </p>
+
+            <p className="text-xl font-semibold">
+              {pkg.speed_mbps} Mbps
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-white/5 p-4">
+            <p className="text-sm text-muted-foreground">
+              Durasi
+            </p>
+
+            <p className="text-xl font-semibold">
+              {pkg.duration_days} Hari
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-white/5 p-4">
+            <p className="text-sm text-muted-foreground">
+              Harga
+            </p>
+
+            <p className="text-xl font-semibold text-purple-400">
+              {pkg.price_sol} SOL
+            </p>
+          </div>
+        </div>
+
+        {/* SUCCESS */}
+        {signature && (
+          <div className="mt-6 rounded-2xl border border-green-500/20 bg-green-500/10 p-4">
+            <p className="font-semibold text-green-400">
+              Pembayaran berhasil ✅
+            </p>
+
             <a
-              href={explorer(status.signature)}
+              href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-between rounded-lg border bg-background/40 p-3 text-xs hover:bg-background/70"
+              className="mt-2 block break-all text-sm text-blue-400 underline"
             >
-              <span className="font-mono">{shortAddr(status.signature, 8)}</span>
-              <ExternalLink className="h-4 w-4" />
+              Lihat transaksi
             </a>
-            <Button className="w-full" onClick={onClose}>Tutup</Button>
           </div>
-        ) : (
-          <>
-            <div className="space-y-3 py-2">
-              <div className="grid gap-1.5">
-                <Label htmlFor="n">Nama lengkap</Label>
-                <Input id="n" value={name} onChange={(e) => setName(e.target.value)} placeholder="Budi Santoso" />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="e">Email</Label>
-                <Input id="e" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="budi@email.com" />
-              </div>
-              <div className="rounded-lg border bg-background/40 p-3 text-xs text-muted-foreground space-y-1">
-                <div className="flex justify-between">
-                  <span>Network</span>
-                  <span className="font-mono uppercase text-foreground">{SOLANA_NETWORK}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Receiver</span>
-                  <span className="font-mono text-foreground">{shortAddr(ISP_RECEIVER_ADDRESS, 6)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Wallet anda</span>
-                  <span className="font-mono text-foreground">{address ? shortAddr(address, 6) : "belum connect"}</span>
-                </div>
-              </div>
-              {status.kind === "err" && (
-                <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive-foreground">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" />
-                  <span>{status.message}</span>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button
-                onClick={pay}
-                disabled={status.kind === "paying"}
-                className="btn-solana hover:btn-solana-hover w-full gap-2"
-              >
-                {status.kind === "paying" && <Loader2 className="h-4 w-4 animate-spin" />}
-                {status.kind === "paying"
-                  ? "Memproses transaksi…"
-                  : address
-                    ? `Bayar ${pkg.price_sol} SOL`
-                    : "Connect Phantom"}
-              </Button>
-            </DialogFooter>
-          </>
         )}
-      </DialogContent>
-    </Dialog>
+
+        {/* ACTIONS */}
+        <div className="mt-8 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-2xl border border-white/10 px-5 py-3"
+          >
+            Tutup
+          </button>
+
+          <button
+            onClick={pay}
+            disabled={loading}
+            className="flex-1 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-3 font-semibold transition hover:opacity-90 disabled:opacity-50"
+          >
+            {loading
+              ? "Processing..."
+              : address
+              ? "Bayar SOL"
+              : "Connect Wallet"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
