@@ -1,8 +1,15 @@
+import { useState } from "react";
+import { CheckoutDialog } from "./CheckoutDialog";
+
 const paketList = [
   {
+    id: "basic",
     name: "Basic",
     speed: "10 Mbps",
+    speed_mbps: 10,
+    duration_days: 30,
     price: "150.000",
+    price_sol: 0.12,
     sol: "0.12 SOL",
     features: [
       "Unlimited bandwidth",
@@ -11,9 +18,13 @@ const paketList = [
     ],
   },
   {
+    id: "pro",
     name: "Pro",
     speed: "20 Mbps",
+    speed_mbps: 20,
+    duration_days: 30,
     price: "250.000",
+    price_sol: 0.2,
     sol: "0.20 SOL",
     features: [
       "Unlimited bandwidth",
@@ -22,9 +33,13 @@ const paketList = [
     ],
   },
   {
+    id: "ultra",
     name: "Ultra",
     speed: "50 Mbps",
+    speed_mbps: 50,
+    duration_days: 30,
     price: "500.000",
+    price_sol: 0.4,
     sol: "0.40 SOL",
     features: [
       "Unlimited bandwidth",
@@ -35,6 +50,8 @@ const paketList = [
 ];
 
 export function PaketSection() {
+  const [selected, setSelected] = useState<any>(null);
+
   return (
     <section className="mt-24">
       <div className="mb-10">
@@ -50,7 +67,7 @@ export function PaketSection() {
       <div className="grid gap-6 md:grid-cols-3">
         {paketList.map((paket) => (
           <div
-            key={paket.name}
+            key={paket.id}
             className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition hover:border-purple-500/50 hover:bg-white/10"
           >
             <div className="space-y-3">
@@ -85,6 +102,7 @@ export function PaketSection() {
             </div>
 
             <button
+              onClick={() => setSelected(paket)}
               className="mt-8 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-3 font-semibold transition hover:opacity-90"
             >
               Pilih Paket
@@ -92,6 +110,11 @@ export function PaketSection() {
           </div>
         ))}
       </div>
+
+      <CheckoutDialog
+        pkg={selected}
+        onClose={() => setSelected(null)}
+      />
     </section>
   );
 }
