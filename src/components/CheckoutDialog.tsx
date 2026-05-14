@@ -27,7 +27,7 @@ type Props = {
 
 // GANTI DENGAN ADDRESS PHANTOM KAMU
 const MERCHANT_WALLET =
-  "MASUKKAN_ADDRESS_PHANTOM_KAMU";
+  "CeT44V5mx2c9PMEnCsKMzPi15umY8kEmaGCxkk2JA2Qa";
 
 export function CheckoutDialog({
   pkg,
