@@ -130,34 +130,40 @@ export function CheckoutDialog({
 
       setSignature(txid);
 
-      // =========================
-      // SAVE TO SUPABASE
-      // =========================
-      const { data, error } =
-        await supabase
-          .from("payments")
-          .insert({
-            invoice: `INV-${Date.now()}`,
+  // =========================
+// SAVE TO SUPABASE
+// =========================
+const { data, error } =
+  await supabase
+    .from("payments")
+    .insert({
+      invoice: `INV-${Date.now()}`,
 
-            package_name: pkg.name,
+      package_name: pkg.name,
 
-            customer_email:
-              user?.email,
+      customer_name:
+        user?.user_metadata?.full_name || "Guest",
 
-            wallet: address,
+      customer_email:
+        user?.email || "guest@email.com",
 
-            network:
-              "solana-devnet",
+      customer_phone:
+        "08123456789",
 
-            amount_sol:
-              pkg.price_sol,
+      wallet: address,
 
-            signature: txid,
+      network:
+        "solana-devnet",
 
-            status: "paid",
+      amount_sol:
+        pkg.price_sol,
 
-            user_id: user?.id,
-          });
+      signature: txid,
+
+      status: "paid",
+
+      user_id: user?.id,
+    });
 
       console.log(
         "PAYMENT DATA:",
