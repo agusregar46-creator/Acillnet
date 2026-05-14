@@ -25,8 +25,9 @@ type Props = {
   onClose: () => void;
 };
 
+// GANTI DENGAN ADDRESS PHANTOM KAMU
 const MERCHANT_WALLET =
-  "CeT44V5mx2c9PMEnCsKMzPi15umY8kEmaGCxkk2JA2Qa";
+  "MASUKKAN_ADDRESS_PHANTOM_KAMU";
 
 export function CheckoutDialog({
   pkg,
@@ -36,9 +37,9 @@ export function CheckoutDialog({
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
-  const [signature, setSignature] = useState<string | null>(
-    null
-  );
+
+  const [signature, setSignature] =
+    useState<string | null>(null);
 
   const connection = useMemo(
     () =>
@@ -63,32 +64,40 @@ export function CheckoutDialog({
         return;
       }
 
-      const provider = (window as any).phantom?.solana;
+      const provider =
+        (window as any).phantom?.solana;
 
       if (!provider) {
-        alert("Phantom Wallet tidak ditemukan");
+        alert(
+          "Phantom Wallet tidak ditemukan"
+        );
+
         return;
       }
 
       // =========================
       // CREATE TRANSACTION
       // =========================
-      const fromPubkey = new PublicKey(address);
+      const fromPubkey =
+        new PublicKey(address);
 
-      const toPubkey = new PublicKey(
-        MERCHANT_WALLET
-      );
+      const toPubkey =
+        new PublicKey(MERCHANT_WALLET);
 
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey,
-          toPubkey,
-          lamports:
-            pkg.price_sol * LAMPORTS_PER_SOL,
-        })
-      );
+      const transaction =
+        new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey,
+            toPubkey,
 
-      transaction.feePayer = fromPubkey;
+            lamports:
+              pkg.price_sol *
+              LAMPORTS_PER_SOL,
+          })
+        );
+
+      transaction.feePayer =
+        fromPubkey;
 
       const latestBlockhash =
         await connection.getLatestBlockhash();
@@ -115,34 +124,56 @@ export function CheckoutDialog({
       // =========================
       // CONFIRM TRANSACTION
       // =========================
-      await connection.confirmTransaction(txid);
+      await connection.confirmTransaction(
+        txid
+      );
 
       setSignature(txid);
 
       // =========================
       // SAVE TO SUPABASE
       // =========================
-      await supabase
-        .from("payments")
-        .insert({
-          invoice: `INV-${Date.now()}`,
+      const { data, error } =
+        await supabase
+          .from("payments")
+          .insert({
+            invoice: `INV-${Date.now()}`,
 
-          package_name: pkg.name,
+            package_name: pkg.name,
 
-          customer_email: user?.email,
+            customer_email:
+              user?.email,
 
-          wallet: address,
+            wallet: address,
 
-          network: "solana-devnet",
+            network:
+              "solana-devnet",
 
-          amount_sol: pkg.price_sol,
+            amount_sol:
+              pkg.price_sol,
 
-          signature: txid,
+            signature: txid,
 
-          status: "paid",
+            status: "paid",
 
-          user_id: user?.id,
-        });
+            user_id: user?.id,
+          });
+
+      console.log(
+        "PAYMENT DATA:",
+        data
+      );
+
+      if (error) {
+        console.error(
+          "SUPABASE ERROR:",
+          error
+        );
+
+        alert(error.message);
+
+        return;
+      }
 
       alert(
         "Pembayaran berhasil 🚀"
@@ -170,7 +201,8 @@ export function CheckoutDialog({
             </h2>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              Pembayaran menggunakan Solana 🚀
+              Pembayaran menggunakan
+              Solana 🚀
             </p>
           </div>
 
