@@ -4,6 +4,7 @@ import { FaqSection } from "./components/FaqSection";
 
 import { useAuth } from "./hooks/useAuth";
 import { supabase } from "./integrations/supabase/client";
+import { PaketSection } from "./components/PaketSection";
 
 export default function App() {
   const { user, isAdmin } = useAuth();
@@ -160,6 +161,8 @@ export default function App() {
           </div>
         </section>
 
+{/* PAKET INTERNET */}
+<PaketSection />
         {/* FAQ */}
         <section className="mt-20">
           <FaqSection />
