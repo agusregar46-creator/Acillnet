@@ -6,6 +6,7 @@ import { useAuth } from "./hooks/useAuth";
 import { supabase } from "./integrations/supabase/client";
 import { PaketSection } from "./components/PaketSection";
 import { PaymentHistory } from "./components/PaymentHistory";
+import { AdminPayments } from "./components/AdminPayments";
 
 export default function App() {
   const { user, isAdmin } = useAuth();
@@ -171,6 +172,8 @@ export default function App() {
       </main>
       {/* RIWAYAT PEMBAYARAN */}
 <PaymentHistory />
+
+<AdminPayments />
 
       {/* FLOATING WHATSAPP */}
       <WhatsAppFab />
