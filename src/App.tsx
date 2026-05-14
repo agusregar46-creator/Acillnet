@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { SiteHeader } from "./components/SiteHeader";
 import { WhatsAppFab } from "./components/WhatsAppFab";
 import { FaqSection } from "./components/FaqSection";
@@ -10,23 +8,9 @@ import { supabase } from "./integrations/supabase/client";
 export default function App() {
   const { user, isAdmin } = useAuth();
 
-  const [loading, setLoading] = useState(false);
-
-  async function login() {
-    setLoading(true);
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-
-    if (error) {
-      alert(error.message);
-    }
-
-    setLoading(false);
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.reload();
   }
 
   return (
@@ -34,51 +18,85 @@ export default function App() {
       <SiteHeader />
 
       <main className="container mx-auto px-6 py-10">
+        {/* HERO */}
         <section className="py-20">
-          <h1 className="text-5xl font-bold">
-            Acillnet 🚀
-          </h1>
+          <div className="max-w-3xl">
+            <h1 className="text-5xl font-bold leading-tight">
+              Acillnet 🚀
+            </h1>
 
-          <p className="mt-4 max-w-2xl text-muted-foreground">
-            Platform pembayaran internet berbasis Solana dengan
-            integrasi wallet Phantom dan Supabase authentication.
-          </p>
+            <p className="mt-5 text-lg text-muted-foreground">
+              Platform pembayaran internet berbasis Solana dengan
+              integrasi wallet Phantom dan Supabase authentication.
+            </p>
 
-          <div className="mt-10 rounded-2xl border border-white/10 bg-white/5 p-6">
-            {user ? (
-              <div className="space-y-2">
-                <p className="text-lg font-semibold">
-                  Berhasil login ✅
-                </p>
+            {/* AUTH CARD */}
+            <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+              {user ? (
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      Berhasil login ✅
+                    </h2>
 
-                <p className="font-mono text-sm text-muted-foreground">
-                  {user.email}
-                </p>
+                    <p className="mt-2 text-muted-foreground">
+                      Selamat datang kembali.
+                    </p>
+                  </div>
 
-                <p>
-                  Role:
-                  {" "}
-                  {isAdmin ? "Admin" : "User"}
-                </p>
-              </div>
-            ) : (
-              <div>
-                <p className="text-lg font-semibold">
-                  Belum login
-                </p>
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-sm text-muted-foreground">
+                      Email
+                    </p>
 
-                <button
-                  onClick={login}
-                  disabled={loading}
-                  className="mt-4 rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
-                >
-                  {loading ? "Loading..." : "Login Google"}
-                </button>
-              </div>
-            )}
+                    <p className="font-mono">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-sm text-muted-foreground">
+                      Role
+                    </p>
+
+                    <p className="font-semibold">
+                      {isAdmin ? "Admin" : "User"}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={logout}
+                    className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      Belum login
+                    </h2>
+
+                    <p className="mt-2 text-muted-foreground">
+                      Login untuk mengakses fitur pembayaran,
+                      dashboard pelanggan, dan wallet integration.
+                    </p>
+                  </div>
+
+                  <a
+                    href="/auth"
+                    className="inline-flex rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
+                  >
+                    Login Sekarang
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
+        {/* FAQ */}
         <section className="mt-20">
           <FaqSection />
         </section>
