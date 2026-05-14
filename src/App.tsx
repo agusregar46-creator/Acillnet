@@ -5,6 +5,7 @@ import { FaqSection } from "./components/FaqSection";
 import { useAuth } from "./hooks/useAuth";
 import { supabase } from "./integrations/supabase/client";
 import { PaketSection } from "./components/PaketSection";
+import { PaymentHistory } from "./components/PaymentHistory";
 
 export default function App() {
   const { user, isAdmin } = useAuth();
@@ -168,6 +169,8 @@ export default function App() {
           <FaqSection />
         </section>
       </main>
+      {/* RIWAYAT PEMBAYARAN */}
+<PaymentHistory />
 
       {/* FLOATING WHATSAPP */}
       <WhatsAppFab />
