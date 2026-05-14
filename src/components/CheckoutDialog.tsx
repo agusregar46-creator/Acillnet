@@ -26,7 +26,7 @@ type Props = {
 };
 
 const MERCHANT_WALLET =
-  "11111111111111111111111111111111";
+  "CeT44V5mx2c9PMEnCsKMzPi15umY8kEmaGCxkk2JA2Qa";
 
 export function CheckoutDialog({
   pkg,
