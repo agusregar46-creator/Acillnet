@@ -8,17 +8,20 @@ export default function App() {
       <SiteHeader />
 
       <main className="container mx-auto px-6 py-10">
-        <h1 className="text-5xl font-bold">
-          Acillnet 🚀
-        </h1>
+        <section className="py-20">
+          <h1 className="text-5xl font-bold">
+            Acillnet 🚀
+          </h1>
 
-        <p className="mt-4 text-muted-foreground">
-          Solana internet payment platform.
-        </p>
+          <p className="mt-4 max-w-2xl text-muted-foreground">
+            Platform pembayaran internet berbasis Solana dengan
+            integrasi wallet Phantom dan Supabase authentication.
+          </p>
+        </section>
 
-        <div className="mt-10">
+        <section className="mt-20">
           <FaqSection />
-        </div>
+        </section>
       </main>
 
       <WhatsAppFab />
