@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import { CheckoutDialog } from "./CheckoutDialog";
+import { ManualPayment } from "./ManualPayment";
 
 const paketList = [
   {
@@ -17,6 +19,7 @@ const paketList = [
       "Free instalasi",
     ],
   },
+
   {
     id: "pro",
     name: "Pro",
@@ -32,6 +35,7 @@ const paketList = [
       "Latency rendah",
     ],
   },
+
   {
     id: "ultra",
     name: "Ultra",
@@ -50,10 +54,15 @@ const paketList = [
 ];
 
 export function PaketSection() {
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] =
+    useState<any>(null);
+
+  const [openManual, setOpenManual] =
+    useState(false);
 
   return (
     <section className="mt-24">
+      {/* HEADER */}
       <div className="mb-10">
         <h2 className="text-4xl font-bold">
           Paket Internet 🚀
@@ -64,12 +73,14 @@ export function PaketSection() {
         </p>
       </div>
 
+      {/* GRID */}
       <div className="grid gap-6 md:grid-cols-3">
         {paketList.map((paket) => (
           <div
             key={paket.id}
             className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition hover:border-purple-500/50 hover:bg-white/10"
           >
+            {/* TITLE */}
             <div className="space-y-3">
               <h3 className="text-2xl font-bold">
                 {paket.name}
@@ -90,6 +101,7 @@ export function PaketSection() {
               </div>
             </div>
 
+            {/* FEATURES */}
             <div className="mt-6 space-y-3">
               {paket.features.map((feature) => (
                 <div
@@ -101,19 +113,44 @@ export function PaketSection() {
               ))}
             </div>
 
-            <button
-              onClick={() => setSelected(paket)}
-              className="mt-8 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-3 font-semibold transition hover:opacity-90"
-            >
-              Pilih Paket
-            </button>
+            {/* BUTTONS */}
+            <div className="mt-8 flex flex-col gap-3">
+              {/* SOL PAYMENT */}
+              <button
+                onClick={() =>
+                  setSelected(paket)
+                }
+                className="w-full rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-3 font-semibold transition hover:opacity-90"
+              >
+                Bayar SOL
+              </button>
+
+              {/* MANUAL PAYMENT */}
+              <button
+                onClick={() =>
+                  setOpenManual(true)
+                }
+                className="w-full rounded-2xl bg-white/10 px-5 py-3 font-semibold transition hover:bg-white/20"
+              >
+                QRIS / Transfer
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
+      {/* SOL CHECKOUT */}
       <CheckoutDialog
         pkg={selected}
         onClose={() => setSelected(null)}
+      />
+
+      {/* MANUAL PAYMENT */}
+      <ManualPayment
+        open={openManual}
+        onClose={() =>
+          setOpenManual(false)
+        }
       />
     </section>
   );
