@@ -29,41 +29,55 @@ export default function AuthPage() {
   }
 
   async function loginEmail() {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-    setLoading(false);
+      if (error) {
+        alert(error.message);
+        return;
+      }
 
-    if (error) {
-      alert(error.message);
-      return;
+      window.location.href = "/";
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    window.location.href = "/";
   }
 
   async function registerEmail() {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const { error } =
-      await supabase.auth.signUp({
-        email,
-        password,
-      });
+      console.log("REGISTER CLICK");
 
-    setLoading(false);
+      const result =
+        await supabase.auth.signUp({
+          email,
+          password,
+        });
 
-    if (error) {
-      alert(error.message);
-      return;
+      console.log(result);
+
+      if (result.error) {
+        alert(result.error.message);
+        return;
+      }
+
+      alert("Register berhasil");
+    } catch (err: any) {
+      console.error(err);
+
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    alert("Register berhasil");
   }
 
   return (
@@ -117,11 +131,14 @@ export default function AuthPage() {
         </div>
 
         <button
-          onClick={
-            isRegister
-              ? registerEmail
-              : loginEmail
-          }
+          type="button"
+          onClick={() => {
+            if (isRegister) {
+              registerEmail();
+            } else {
+              loginEmail();
+            }
+          }}
           disabled={loading}
           className="mt-5 w-full rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-5 py-3 font-semibold"
         >
@@ -138,6 +155,7 @@ export default function AuthPage() {
             : "Belum punya akun?"}
 
           <button
+            type="button"
             onClick={() =>
               setIsRegister(!isRegister)
             }
