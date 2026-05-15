@@ -1,10 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+
 import App from "./App";
+import AuthPage from "./routes/auth";
+
 import "./styles.css";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const path = window.location.pathname;
+
+ReactDOM.createRoot(
+  document.getElementById("root")!
+).render(
   <React.StrictMode>
-    <App />
+    {path === "/auth" ? <AuthPage /> : <App />}
   </React.StrictMode>
 );
