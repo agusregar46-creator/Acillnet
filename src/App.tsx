@@ -177,7 +177,9 @@ export default function App() {
   <>
     <AdminStats />
 
-<AdminPayments />
+    <AdminPayments />
+  </>
+)}
 
       {/* FLOATING WHATSAPP */}
       <WhatsAppFab />
