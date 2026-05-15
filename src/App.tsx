@@ -1,7 +1,10 @@
+import { useState } from "react";
+
 import { SiteHeader, SiteFooter } from "./components/SiteHeader";
 import { WhatsAppFab } from "./components/WhatsAppFab";
 import { FaqSection } from "./components/FaqSection";
 import { PaketSection } from "./components/PaketSection";
+import { AdminPanel } from "./components/AdminPanel";
 
 import { useAuth } from "./hooks/useAuth";
 import { supabase } from "./integrations/supabase/client";
@@ -16,10 +19,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background text-white">
+      {/* HEADER */}
       <SiteHeader />
 
       <main className="container mx-auto px-6 py-10">
-        {/* HOME */}
+        {/* HERO */}
         <section
           id="home"
           className="py-20"
@@ -30,8 +34,9 @@ export default function App() {
             </h1>
 
             <p className="mt-5 text-lg text-muted-foreground">
-              Platform pembayaran internet berbasis Solana dengan
-              integrasi wallet Phantom dan Supabase authentication.
+              Platform pembayaran internet berbasis Solana
+              dengan integrasi wallet Phantom dan
+              Supabase authentication.
             </p>
 
             {/* AUTH CARD */}
@@ -84,7 +89,8 @@ export default function App() {
 
                     <p className="mt-2 text-muted-foreground">
                       Login untuk mengakses fitur pembayaran,
-                      dashboard pelanggan, dan wallet integration.
+                      dashboard pelanggan, dan wallet
+                      integration.
                     </p>
                   </div>
 
@@ -123,46 +129,52 @@ export default function App() {
           id="tentang"
           className="mt-24"
         >
-          <h2 className="text-4xl font-bold">
-            Tentang Acillnet
-          </h2>
+          <div className="max-w-4xl">
+            <h2 className="text-4xl font-bold">
+              Tentang Acillnet
+            </h2>
 
-          <p className="mt-5 max-w-3xl text-muted-foreground">
-            Acillnet adalah platform pembayaran internet
-            modern berbasis blockchain Solana yang
-            memungkinkan pelanggan melakukan pembayaran
-            cepat menggunakan wallet Phantom.
-          </p>
+            <p className="mt-5 text-lg text-muted-foreground leading-8">
+              Acillnet adalah platform pembayaran internet
+              berbasis blockchain Solana yang memungkinkan
+              pelanggan melakukan pembayaran menggunakan
+              wallet crypto seperti Phantom secara cepat,
+              aman, dan transparan.
+            </p>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-xl font-semibold">
-                ⚡ Cepat
-              </h3>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold">
+                  Fast Payment
+                </h3>
 
-              <p className="mt-3 text-muted-foreground">
-                Transaksi Solana selesai dalam hitungan detik.
-              </p>
-            </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Pembayaran real-time menggunakan jaringan
+                  Solana.
+                </p>
+              </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-xl font-semibold">
-                🔒 Aman
-              </h3>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold">
+                  Secure
+                </h3>
 
-              <p className="mt-3 text-muted-foreground">
-                Pembayaran langsung dari wallet pengguna.
-              </p>
-            </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Data transaksi aman dan transparan dengan
+                  teknologi blockchain.
+                </p>
+              </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-xl font-semibold">
-                🌍 Modern
-              </h3>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <h3 className="text-xl font-semibold">
+                  Modern ISP
+                </h3>
 
-              <p className="mt-3 text-muted-foreground">
-                Sistem internet payment generasi Web3.
-              </p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Solusi pembayaran internet modern untuk
+                  ISP lokal Indonesia.
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -180,58 +192,43 @@ export default function App() {
           id="kontak"
           className="mt-24"
         >
-          <h2 className="text-4xl font-bold">
-            Kontak
-          </h2>
+          <div className="max-w-5xl">
+            <h2 className="text-4xl font-bold">
+              Kontak
+            </h2>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-xl font-semibold">
-                WhatsApp
-              </h3>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <h3 className="text-2xl font-semibold">
+                  WhatsApp
+                </h3>
 
-              <p className="mt-3 text-muted-foreground">
-                +62 823-2406-3763
-              </p>
-            </div>
+                <p className="mt-4 text-lg text-muted-foreground">
+                  +62 823-2406-3763
+                </p>
+              </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-xl font-semibold">
-                Email
-              </h3>
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <h3 className="text-2xl font-semibold">
+                  Email
+                </h3>
 
-              <p className="mt-3 text-muted-foreground">
-                admin@acillnet.com
-              </p>
+                <p className="mt-4 text-lg text-muted-foreground">
+                  admin@acillnet.com
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* ADMIN */}
-        <section
-          id="admin"
-          className="mt-24"
-        >
-          <h2 className="text-4xl font-bold">
-            Admin Panel
-          </h2>
-
-          <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-8">
-            {isAdmin ? (
-              <p className="text-green-400">
-                Anda login sebagai Admin ✅
-              </p>
-            ) : (
-              <p className="text-muted-foreground">
-                Hanya admin yang dapat mengakses panel ini.
-              </p>
-            )}
-          </div>
-        </section>
+        {isAdmin && <AdminPanel />}
       </main>
 
+      {/* FOOTER */}
       <SiteFooter />
 
+      {/* FLOATING WHATSAPP */}
       <WhatsAppFab />
     </div>
   );
