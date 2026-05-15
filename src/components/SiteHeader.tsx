@@ -1,35 +1,71 @@
 import { useState } from "react";
-import { Wifi, Menu, X, LogIn, LogOut } from "lucide-react";
+import {
+  Wifi,
+  Menu,
+  X,
+  LogIn,
+  LogOut,
+} from "lucide-react";
 
 import { WalletButton } from "@/components/WalletButton";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
-  { href: "#home", label: "Home" },
-  { href: "#paket", label: "Paket" },
-  { href: "#tentang", label: "Tentang" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#kontak", label: "Kontak" },
-  { href: "#admin", label: "Admin" },
+  {
+    href: "/#home",
+    label: "Home",
+  },
+
+  {
+    href: "/#paket",
+    label: "Paket",
+  },
+
+  {
+    href: "/#tentang",
+    label: "Tentang",
+  },
+
+  {
+    href: "/#faq",
+    label: "FAQ",
+  },
+
+  {
+    href: "/#kontak",
+    label: "Kontak",
+  },
+
+  {
+    href: "/#admin",
+    label: "Admin",
+  },
 ];
 
 export function SiteHeader() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] =
+    useState(false);
 
-  const { user, signOut } = useAuth();
+  const { user, signOut } =
+    useAuth();
 
+  // =========================
+  // AUTH BUTTON
+  // =========================
   const authBtn = user ? (
     <Button
       variant="outline"
       size="sm"
       onClick={async () => {
         await signOut();
+
         window.location.reload();
       }}
       className="gap-2"
     >
       <LogOut className="h-4 w-4" />
+
       Logout
     </Button>
   ) : (
@@ -42,6 +78,7 @@ export function SiteHeader() {
       className="gap-2"
     >
       <LogIn className="h-4 w-4" />
+
       Login
     </Button>
   );
@@ -54,7 +91,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-4">
         {/* LOGO */}
         <a
-          href="#home"
+          href="/#home"
           className="flex items-center gap-2 font-semibold tracking-tight"
         >
           <div className="grid h-9 w-9 place-items-center rounded-xl btn-solana">
@@ -147,33 +184,36 @@ export function SiteFooter({
     <footer className="border-t border-border/50">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-8 text-sm text-muted-foreground md:flex-row">
         <span>
-          © {new Date().getFullYear()} Acill Net ISP —
+          ©{" "}
+          {new Date().getFullYear()} Acill Net ISP —
           built on Solana.
         </span>
 
+        {/* FOOTER MENU */}
         <nav className="flex gap-5 text-xs">
           <a
-            href="#tentang"
+            href="/#tentang"
             className="hover:text-foreground"
           >
             Tentang
           </a>
 
           <a
-            href="#kontak"
+            href="/#kontak"
             className="hover:text-foreground"
           >
             Kontak
           </a>
 
           <a
-            href="#faq"
+            href="/#faq"
             className="hover:text-foreground"
           >
             FAQ
           </a>
         </nav>
 
+        {/* SOL PRICE */}
         <span className="font-mono text-xs">
           {rate
             ? `1 SOL ≈ ${new Intl.NumberFormat(
