@@ -1,30 +1,35 @@
 import { useState } from "react";
 
+import { supabase } from "./integrations/supabase/client";
+
 import { SiteHeader } from "./components/SiteHeader";
-import { WhatsAppFab } from "./components/WhatsAppFab";
-import { FaqSection } from "./components/FaqSection";
 import { PaketSection } from "./components/PaketSection";
-import { AdminPanel } from "./components/AdminPanel";
+import { FaqSection } from "./components/FaqSection";
+import { WhatsAppFab } from "./components/WhatsAppFab";
 
 import { useAuth } from "./hooks/useAuth";
-import { supabase } from "./integrations/supabase/client";
 
 export default function App() {
   const { user, isAdmin } = useAuth();
 
-  const [email, setEmail] =
-    useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [password, setPassword] =
-    useState("");
+  async function register() {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  async function logout() {
-    await supabase.auth.signOut();
+    if (error) {
+      alert(error.message);
+      return;
+    }
 
-    window.location.reload();
+    alert("Berhasil daftar, cek email verifikasi");
   }
 
-  async function loginEmail() {
+  async function login() {
     const { error } =
       await supabase.auth.signInWithPassword({
         email,
@@ -33,25 +38,10 @@ export default function App() {
 
     if (error) {
       alert(error.message);
-    } else {
-      window.location.reload();
+      return;
     }
-  }
 
-  async function register() {
-    const { error } =
-      await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-    if (error) {
-      alert(error.message);
-    } else {
-      alert(
-        "Cek email untuk verifikasi akun 🚀"
-      );
-    }
+    alert("Login berhasil");
   }
 
   async function loginGoogle() {
@@ -59,8 +49,7 @@ export default function App() {
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo:
-            window.location.origin,
+          redirectTo: window.location.origin,
         },
       });
 
@@ -69,136 +58,107 @@ export default function App() {
     }
   }
 
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+
   return (
-    <div
-      id="home"
-      className="min-h-screen bg-background text-white"
-    >
+    <div className="min-h-screen bg-background text-white">
       <SiteHeader />
 
-      <main className="container mx-auto px-6 py-10">
+      <main
+        id="home"
+        className="container mx-auto px-6 py-10"
+      >
         {/* HERO */}
         <section className="py-20">
           <div className="max-w-3xl">
-            <h1 className="text-5xl font-bold leading-tight">
+            <h1 className="text-5xl font-bold">
               Acillnet 🚀
             </h1>
 
             <p className="mt-5 text-lg text-muted-foreground">
-              Platform pembayaran internet
-              berbasis Solana dengan
-              integrasi wallet Phantom dan
-              Supabase authentication.
+              Platform pembayaran internet berbasis
+              Solana dengan integrasi wallet Phantom
+              dan Supabase authentication.
             </p>
 
-            {/* AUTH CARD */}
-            <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
+            {/* AUTH */}
+            <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
               {user ? (
                 <div className="space-y-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold">
-                      Berhasil login ✅
-                    </h2>
+                  <h2 className="text-2xl font-semibold">
+                    Berhasil login ✅
+                  </h2>
 
-                    <p className="mt-2 text-muted-foreground">
-                      Selamat datang kembali.
-                    </p>
-                  </div>
+                  <p>{user.email}</p>
 
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <p className="text-sm text-muted-foreground">
-                      Email
-                    </p>
-
-                    <p className="font-mono">
-                      {user.email}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <p className="text-sm text-muted-foreground">
-                      Role
-                    </p>
-
-                    <p className="font-semibold">
-                      {isAdmin
-                        ? "Admin"
-                        : "User"}
-                    </p>
-                  </div>
+                  <p>
+                    Role:
+                    {" "}
+                    {isAdmin
+                      ? "Admin"
+                      : "User"}
+                  </p>
 
                   <button
                     onClick={logout}
-                    className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
+                    className="rounded-xl bg-red-500 px-5 py-3"
                   >
                     Logout
                   </button>
                 </div>
               ) : (
-                <div className="space-y-5">
-                  <div>
-                    <h2 className="text-2xl font-semibold">
-                      Login / Register
-                    </h2>
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-semibold">
+                    Login / Register
+                  </h2>
 
-                    <p className="mt-2 text-muted-foreground">
-                      Masuk untuk
-                      mengakses dashboard,
-                      pembayaran, dan wallet
-                      integration.
-                    </p>
-                  </div>
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) =>
+                      setEmail(e.target.value)
+                    }
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+                  />
 
-                  {/* EMAIL */}
-                  <div className="space-y-3">
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      value={email}
-                      onChange={(e) =>
-                        setEmail(
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none"
-                    />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) =>
+                      setPassword(
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+                  />
 
-                    <input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) =>
-                        setPassword(
-                          e.target.value
-                        )
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 outline-none"
-                    />
-                  </div>
-
-                  {/* BUTTONS */}
-                  <div className="flex flex-col gap-3">
+                  <div className="flex gap-3">
                     <button
-                      onClick={loginEmail}
-                      className="rounded-xl bg-blue-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
+                      onClick={login}
+                      className="rounded-xl bg-blue-500 px-5 py-3 font-semibold"
                     >
-                      Login Email
+                      Login
                     </button>
 
                     <button
                       onClick={register}
-                      className="rounded-xl bg-purple-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
+                      className="rounded-xl bg-green-500 px-5 py-3 font-semibold"
                     >
                       Register
                     </button>
-
-                    <button
-                      onClick={loginGoogle}
-                      className="rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
-                    >
-                      Login Google
-                    </button>
                   </div>
+
+                  <button
+                    onClick={loginGoogle}
+                    className="w-full rounded-xl bg-white px-5 py-3 font-semibold text-black"
+                  >
+                    Login Google
+                  </button>
                 </div>
               )}
             </div>
@@ -210,73 +170,86 @@ export default function App() {
           <PaketSection />
         </section>
 
-        {/* TENTANG */}
-        <section
-          id="tentang"
-          className="mt-24"
-        >
-          <h2 className="text-4xl font-bold">
-            Tentang Acillnet
-          </h2>
-
-          <p className="mt-4 max-w-3xl text-muted-foreground">
-            Acillnet adalah platform ISP
-            modern berbasis blockchain
-            Solana untuk pembayaran internet
-            yang cepat, aman, dan transparan.
-          </p>
-        </section>
-
         {/* FAQ */}
         <section
           id="faq"
-          className="mt-24"
+          className="mt-20"
         >
           <FaqSection />
+        </section>
+
+        {/* TENTANG */}
+        <section
+          id="tentang"
+          className="mt-20"
+        >
+          <h2 className="text-4xl font-bold">
+            Tentang
+          </h2>
+
+          <p className="mt-4 text-muted-foreground">
+            Acillnet adalah platform ISP modern
+            berbasis blockchain Solana untuk
+            pembayaran internet yang cepat,
+            transparan, dan aman.
+          </p>
         </section>
 
         {/* KONTAK */}
         <section
           id="kontak"
-          className="mt-24"
+          className="mt-20"
         >
           <h2 className="text-4xl font-bold">
             Kontak
           </h2>
 
-          <div className="mt-6 space-y-3 text-muted-foreground">
-            <p>
-              WhatsApp:
-              {" "}
-              08xxxxxxxxxx
-            </p>
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <h3 className="text-2xl font-semibold">
+                WhatsApp
+              </h3>
 
-            <p>
-              Email:
-              {" "}
-              support@acillnet.my.id
-            </p>
+              <p className="mt-3 text-muted-foreground">
+                +62 823-2406-3763
+              </p>
+            </div>
 
-            <p>
-              Lokasi:
-              {" "}
-              Indonesia
-            </p>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <h3 className="text-2xl font-semibold">
+                Email
+              </h3>
+
+              <p className="mt-3 text-muted-foreground">
+                admin@acillnet.com
+              </p>
+            </div>
           </div>
         </section>
 
         {/* ADMIN */}
-        {isAdmin && (
-          <section
-            id="admin"
-            className="mt-24"
-          >
-            <AdminPanel />
-          </section>
-        )}
+        <section
+          id="admin"
+          className="mt-20"
+        >
+          <h2 className="text-4xl font-bold">
+            Admin Panel
+          </h2>
+
+          <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-8">
+            {isAdmin ? (
+              <p className="text-green-400">
+                Anda login sebagai Admin ✅
+              </p>
+            ) : (
+              <p className="text-red-400">
+                Anda bukan admin
+              </p>
+            )}
+          </div>
+        </section>
       </main>
 
-      {/* FLOATING WHATSAPP */}
       <WhatsAppFab />
     </div>
   );
