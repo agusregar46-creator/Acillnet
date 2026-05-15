@@ -1,25 +1,33 @@
-import { SiteHeader, SiteFooter } from "./components/SiteHeader";
+import {
+  SiteHeader,
+  SiteFooter,
+} from "./components/SiteHeader";
+
 import { WhatsAppFab } from "./components/WhatsAppFab";
 import { FaqSection } from "./components/FaqSection";
 import { PaketSection } from "./components/PaketSection";
 import { AdminPanel } from "./components/AdminPanel";
 
 import { useAuth } from "./hooks/useAuth";
-import { supabase } from "./integrations/supabase/client";
 
 export default function App() {
-  const { user, isAdmin } = useAuth();
+  const {
+    user,
+    isAdmin,
+    signOut,
+  } = useAuth();
 
   async function logout() {
-    await supabase.auth.signOut();
-    window.location.reload();
+    await signOut();
+
+    window.location.href = "/";
   }
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="relative min-h-screen bg-background text-white">
       <SiteHeader />
 
-      <main className="container mx-auto px-6 py-10">
+      <main className="relative z-10 container mx-auto px-6 py-10">
 
         {/* HOME */}
         <section
@@ -40,6 +48,7 @@ export default function App() {
             <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
               {user ? (
                 <div className="space-y-4">
+
                   <div>
                     <h2 className="text-2xl font-semibold">
                       Berhasil login ✅
@@ -50,6 +59,7 @@ export default function App() {
                     </p>
                   </div>
 
+                  {/* EMAIL */}
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <p className="text-sm text-muted-foreground">
                       Email
@@ -60,25 +70,30 @@ export default function App() {
                     </p>
                   </div>
 
+                  {/* ROLE */}
                   <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                     <p className="text-sm text-muted-foreground">
                       Role
                     </p>
 
                     <p className="font-semibold">
-                      {isAdmin ? "Admin" : "User"}
+                      {isAdmin
+                        ? "Admin"
+                        : "User"}
                     </p>
                   </div>
 
+                  {/* LOGOUT */}
                   <button
                     onClick={logout}
-                    className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
+                    className="relative z-50 rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
                   >
                     Logout
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
+
                   <div>
                     <h2 className="text-2xl font-semibold">
                       Belum login
@@ -116,7 +131,7 @@ export default function App() {
             Tentang Acillnet
           </h2>
 
-          <p className="mt-5 max-w-3xl text-muted-foreground leading-8">
+          <p className="mt-5 max-w-3xl leading-8 text-muted-foreground">
             Acillnet adalah platform pembayaran internet modern
             berbasis blockchain Solana yang memungkinkan pengguna
             melakukan pembayaran dengan cepat, aman, dan transparan.
@@ -141,6 +156,7 @@ export default function App() {
           </h2>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
+
             <div className="rounded-3xl border border-white/10 bg-white/5 p-8">
               <h3 className="text-2xl font-semibold">
                 WhatsApp
@@ -163,15 +179,15 @@ export default function App() {
           </div>
         </section>
 
-      {/* ADMIN */}
-    {isAdmin && (
-      <section
-        id="admin"
-        className="mt-24"
-      >
-        <AdminPanel />
-      </section>
-    )}
+        {/* ADMIN */}
+        {isAdmin && (
+          <section
+            id="admin"
+            className="mt-24"
+          >
+            <AdminPanel />
+          </section>
+        )}
 
       </main>
 
