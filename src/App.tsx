@@ -164,13 +164,15 @@ export default function App() {
         </section>
 
       {/* ADMIN */}
-{isAdmin && (
-  <section
-    id="admin"
-    className="mt-24"
-  >
-    <AdminPanel />
-  </section>
+    {isAdmin && (
+      <section
+        id="admin"
+        className="mt-24"
+      >
+        <AdminPanel />
+      </section>
+    )}
+
       </main>
 
       <SiteFooter />
