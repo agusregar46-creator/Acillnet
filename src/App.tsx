@@ -1,201 +1,219 @@
-import { useState } from "react";
-import { Wifi, Menu, X, LogIn, LogOut } from "lucide-react";
+import { SiteHeader } from "./components/SiteHeader";
+import { WhatsAppFab } from "./components/WhatsAppFab";
+import { FaqSection } from "./components/FaqSection";
 
-import { WalletButton } from "@/components/WalletButton";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./hooks/useAuth";
+import { supabase } from "./integrations/supabase/client";
 
-export function SiteHeader() {
-  const [open, setOpen] = useState(false);
+import { PaketSection } from "./components/PaketSection";
+import { PaymentHistory } from "./components/PaymentHistory";
+import { AdminPayments } from "./components/AdminPayments";
+import { AdminStats } from "./components/AdminStats";
 
-  const { user } = useAuth();
+function App() {
+  const { user, isAdmin } = useAuth();
 
+  // =========================
+  // LOGOUT
+  // =========================
   async function logout() {
     await supabase.auth.signOut();
+
     window.location.reload();
   }
 
+  // =========================
+  // SIGNUP EMAIL
+  // =========================
+  async function signup() {
+    const email = prompt("Masukkan email:");
+
+    if (!email) return;
+
+    const password = prompt(
+      "Masukkan password minimal 6 karakter:"
+    );
+
+    if (!password) return;
+
+    const { error } =
+      await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo:
+            window.location.origin,
+        },
+      });
+
+    if (error) {
+      alert(error.message);
+
+      return;
+    }
+
+    alert(
+      "Akun berhasil dibuat. Cek email verifikasi."
+    );
+  }
+
+  // =========================
+  // LOGIN GOOGLE
+  // =========================
+  async function loginGoogle() {
+    const { error } =
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo:
+            window.location.origin,
+        },
+      });
+
+    if (error) {
+      alert(error.message);
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050816]/80 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        {/* LOGO */}
-        <a
-          href="#home"
-          className="flex items-center gap-3"
+    <div className="min-h-screen bg-background text-white">
+      {/* HEADER */}
+      <SiteHeader />
+
+      {/* MAIN */}
+      <main className="container mx-auto px-6 py-10">
+        {/* HERO */}
+        <section
+          id="home"
+          className="py-20"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-green-400 to-purple-500">
-            <Wifi className="h-6 w-6 text-black" />
-          </div>
+          <div className="max-w-3xl">
+            <h1 className="text-5xl font-bold leading-tight">
+              Acillnet 🚀
+            </h1>
 
-          <div className="text-2xl font-bold">
-            Acill
-            <span className="text-purple-400">
-              Net
-            </span>
-          </div>
-        </a>
+            <p className="mt-5 text-lg text-muted-foreground">
+              Platform pembayaran internet
+              berbasis Solana dengan
+              integrasi wallet Phantom dan
+              Supabase authentication.
+            </p>
 
-        {/* DESKTOP MENU */}
-        <nav className="hidden items-center gap-8 md:flex">
-          <a
-            href="#home"
-            className="text-sm text-muted-foreground transition hover:text-white"
-          >
-            Home
-          </a>
-
-          <a
-            href="#paket"
-            className="text-sm text-muted-foreground transition hover:text-white"
-          >
-            Paket
-          </a>
-
-          <a
-            href="#tentang"
-            className="text-sm text-muted-foreground transition hover:text-white"
-          >
-            Tentang
-          </a>
-
-          <a
-            href="#faq"
-            className="text-sm text-muted-foreground transition hover:text-white"
-          >
-            FAQ
-          </a>
-
-          <a
-            href="#kontak"
-            className="text-sm text-muted-foreground transition hover:text-white"
-          >
-            Kontak
-          </a>
-
-          <a
-            href="#admin"
-            className="text-sm text-muted-foreground transition hover:text-white"
-          >
-            Admin
-          </a>
-        </nav>
-
-        {/* RIGHT BUTTONS */}
-        <div className="hidden items-center gap-3 md:flex">
-          {user ? (
-            <Button
-              onClick={logout}
-              variant="outline"
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Logout
-            </Button>
-          ) : (
-            <a href="/auth">
-              <Button
-                variant="outline"
-                className="gap-2"
-              >
-                <LogIn className="h-4 w-4" />
-                Login
-              </Button>
-            </a>
-          )}
-
-          <WalletButton />
-        </div>
-
-        {/* MOBILE BUTTON */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden"
-        >
-          {open ? (
-            <X className="h-7 w-7" />
-          ) : (
-            <Menu className="h-7 w-7" />
-          )}
-        </button>
-      </div>
-
-      {/* MOBILE MENU */}
-      {open && (
-        <div className="border-t border-white/10 bg-[#050816] md:hidden">
-          <div className="flex flex-col gap-4 px-6 py-6">
-            <a
-              href="#home"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground transition hover:text-white"
-            >
-              Home
-            </a>
-
-            <a
-              href="#paket"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground transition hover:text-white"
-            >
-              Paket
-            </a>
-
-            <a
-              href="#tentang"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground transition hover:text-white"
-            >
-              Tentang
-            </a>
-
-            <a
-              href="#faq"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground transition hover:text-white"
-            >
-              FAQ
-            </a>
-
-            <a
-              href="#kontak"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground transition hover:text-white"
-            >
-              Kontak
-            </a>
-
-            <a
-              href="#admin"
-              onClick={() => setOpen(false)}
-              className="text-muted-foreground transition hover:text-white"
-            >
-              Admin
-            </a>
-
-            <div className="mt-4 flex flex-col gap-3">
+            {/* AUTH CARD */}
+            <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
               {user ? (
-                <Button
-                  onClick={logout}
-                  variant="outline"
-                >
-                  Logout
-                </Button>
-              ) : (
-                <a href="/auth">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Login
-                  </Button>
-                </a>
-              )}
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      Berhasil login ✅
+                    </h2>
 
-              <WalletButton />
+                    <p className="mt-2 text-muted-foreground">
+                      Selamat datang kembali.
+                    </p>
+                  </div>
+
+                  {/* EMAIL */}
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-sm text-muted-foreground">
+                      Email
+                    </p>
+
+                    <p className="font-mono">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {/* ROLE */}
+                  <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-sm text-muted-foreground">
+                      Role
+                    </p>
+
+                    <p className="font-semibold">
+                      {isAdmin
+                        ? "Admin"
+                        : "User"}
+                    </p>
+                  </div>
+
+                  {/* LOGOUT */}
+                  <button
+                    onClick={logout}
+                    className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                      Belum login
+                    </h2>
+
+                    <p className="mt-2 text-muted-foreground">
+                      Login untuk mengakses
+                      fitur pembayaran,
+                      dashboard pelanggan,
+                      dan wallet integration.
+                    </p>
+                  </div>
+
+                  {/* BUTTONS */}
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={loginGoogle}
+                      className="rounded-xl bg-white px-5 py-3 font-medium text-black transition hover:opacity-90"
+                    >
+                      Login Google
+                    </button>
+
+                    <button
+                      onClick={signup}
+                      className="rounded-xl border border-white/20 bg-white/10 px-5 py-3 font-medium text-white transition hover:bg-white/20"
+                    >
+                      Daftar Email
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
-    </header>
+        </section>
+
+        {/* PAKET */}
+        <section id="paket">
+          <PaketSection />
+        </section>
+
+        {/* HISTORY */}
+        <PaymentHistory />
+
+        {/* ADMIN */}
+        <section id="admin">
+          {isAdmin && (
+            <>
+              <AdminStats />
+
+              <AdminPayments />
+            </>
+          )}
+        </section>
+
+        {/* FAQ */}
+        <section
+          id="faq"
+          className="mt-20"
+        >
+          <FaqSection />
+        </section>
+      </main>
+
+      {/* FLOATING WHATSAPP */}
+      <WhatsAppFab />
+    </div>
   );
 }
+
+export default App;
