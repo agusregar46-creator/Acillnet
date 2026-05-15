@@ -7,6 +7,7 @@ import { supabase } from "./integrations/supabase/client";
 import { PaketSection } from "./components/PaketSection";
 import { PaymentHistory } from "./components/PaymentHistory";
 import { AdminPayments } from "./components/AdminPayments";
+import { AdminStats } from "./components/AdminStats";
 
 export default function App() {
   const { user, isAdmin } = useAuth();
@@ -172,6 +173,9 @@ export default function App() {
       </main>
       {/* RIWAYAT PEMBAYARAN */}
 <PaymentHistory />
+{isAdmin && (
+  <>
+    <AdminStats />
 
 <AdminPayments />
 
