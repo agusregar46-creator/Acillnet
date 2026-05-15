@@ -12,35 +12,12 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
-  {
-    href: "/#home",
-    label: "Home",
-  },
-
-  {
-    href: "/#paket",
-    label: "Paket",
-  },
-
-  {
-    href: "/#tentang",
-    label: "Tentang",
-  },
-
-  {
-    href: "/#faq",
-    label: "FAQ",
-  },
-
-  {
-    href: "/#kontak",
-    label: "Kontak",
-  },
-
-  {
-    href: "/#admin",
-    label: "Admin",
-  },
+  { href: "#home", label: "Home" },
+  { href: "#paket", label: "Paket" },
+  { href: "#tentang", label: "Tentang" },
+  { href: "#faq", label: "FAQ" },
+  { href: "#kontak", label: "Kontak" },
+  { href: "#admin", label: "Admin" },
 ];
 
 export function SiteHeader() {
@@ -51,7 +28,7 @@ export function SiteHeader() {
     useAuth();
 
   // =========================
-  // AUTH BUTTON
+  // LOGIN BUTTON
   // =========================
   const authBtn = user ? (
     <Button
@@ -59,26 +36,41 @@ export function SiteHeader() {
       size="sm"
       onClick={async () => {
         await signOut();
-
         window.location.reload();
       }}
       className="gap-2"
     >
       <LogOut className="h-4 w-4" />
-
       Logout
     </Button>
   ) : (
     <Button
       variant="outline"
       size="sm"
-      onClick={() => {
-        window.location.href = "/auth";
+      onClick={async () => {
+        const { supabase } =
+          await import(
+            "@/integrations/supabase/client"
+          );
+
+        const { error } =
+          await supabase.auth.signInWithOAuth(
+            {
+              provider: "google",
+              options: {
+                redirectTo:
+                  window.location.origin,
+              },
+            }
+          );
+
+        if (error) {
+          alert(error.message);
+        }
       }}
       className="gap-2"
     >
       <LogIn className="h-4 w-4" />
-
       Login
     </Button>
   );
@@ -91,7 +83,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-4">
         {/* LOGO */}
         <a
-          href="/#home"
+          href="#home"
           className="flex items-center gap-2 font-semibold tracking-tight"
         >
           <div className="grid h-9 w-9 place-items-center rounded-xl btn-solana">
@@ -120,7 +112,7 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        {/* RIGHT BUTTONS */}
+        {/* RIGHT BUTTON */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex md:items-center md:gap-2">
             {authBtn}
@@ -184,36 +176,33 @@ export function SiteFooter({
     <footer className="border-t border-border/50">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-8 text-sm text-muted-foreground md:flex-row">
         <span>
-          ©{" "}
-          {new Date().getFullYear()} Acill Net ISP —
+          © {new Date().getFullYear()} Acill Net ISP —
           built on Solana.
         </span>
 
-        {/* FOOTER MENU */}
         <nav className="flex gap-5 text-xs">
           <a
-            href="/#tentang"
+            href="#tentang"
             className="hover:text-foreground"
           >
             Tentang
           </a>
 
           <a
-            href="/#kontak"
+            href="#kontak"
             className="hover:text-foreground"
           >
             Kontak
           </a>
 
           <a
-            href="/#faq"
+            href="#faq"
             className="hover:text-foreground"
           >
             FAQ
           </a>
         </nav>
 
-        {/* SOL PRICE */}
         <span className="font-mono text-xs">
           {rate
             ? `1 SOL ≈ ${new Intl.NumberFormat(
