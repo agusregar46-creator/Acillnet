@@ -191,7 +191,7 @@ export default function App() {
               </h3>
 
               <p className="mt-3 text-muted-foreground">
-                +62 812-3456-7890
+                +62 823-2406-3763
               </p>
             </div>
 
