@@ -95,11 +95,7 @@ export default function App() {
                   <p>{user.email}</p>
 
                   <p>
-                    Role:
-                    {" "}
-                    {isAdmin
-                      ? "Admin"
-                      : "User"}
+                    Role: {isAdmin ? "Admin" : "User"}
                   </p>
 
                   <button
@@ -137,7 +133,7 @@ export default function App() {
                     className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3"
                   />
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-3">
                     <button
                       onClick={login}
                       className="rounded-xl bg-blue-500 px-5 py-3 font-semibold"
@@ -147,7 +143,7 @@ export default function App() {
 
                     <button
                       onClick={register}
-                      className="rounded-xl bg-green-500 px-5 py-3 font-semibold"
+                      className="rounded-xl bg-purple-500 px-5 py-3 font-semibold"
                     >
                       Register
                     </button>
