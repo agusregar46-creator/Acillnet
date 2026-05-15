@@ -200,6 +200,9 @@ function App() {
             </>
           )}
         </section>
+        <TentangSection />
+
+<KontakSection />
 
         {/* FAQ */}
         <section
