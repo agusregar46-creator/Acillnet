@@ -84,12 +84,13 @@ export default function App() {
                   </div>
 
                   {/* LOGOUT */}
-                  <button
-                    onClick={logout}
-                    className="relative z-50 rounded-xl bg-red-500 px-5 py-3 font-medium text-white transition hover:opacity-90"
-                  >
-                    Logout
-                  </button>
+                 <button
+  type="button"
+  onClick={signOut}
+  className="rounded-xl bg-red-500 px-5 py-3 font-medium text-white hover:opacity-90"
+>
+  Logout
+</button>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -180,13 +181,13 @@ export default function App() {
         </section>
 
         {/* ADMIN */}
-        {isAdmin && (
-          <section
-            id="admin"
-            className="mt-24"
-          >
-            <AdminPanel />
-          </section>
+     {isAdmin && (
+  <section
+    id="admin"
+    className="mt-24"
+  >
+    <AdminPanel />
+  </section>
         )}
 
       </main>

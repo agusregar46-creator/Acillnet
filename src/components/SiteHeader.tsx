@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import {
   Wifi,
   Menu,
@@ -8,16 +9,32 @@ import {
 } from "lucide-react";
 
 import { WalletButton } from "@/components/WalletButton";
+
 import { Button } from "@/components/ui/button";
+
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
-  { href: "#home", label: "Home" },
-  { href: "#paket", label: "Paket" },
-  { href: "#tentang", label: "Tentang" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#kontak", label: "Kontak" },
-  { href: "#admin", label: "Admin" },
+  {
+    href: "#home",
+    label: "Home",
+  },
+  {
+    href: "#paket",
+    label: "Paket",
+  },
+  {
+    href: "#tentang",
+    label: "Tentang",
+  },
+  {
+    href: "#faq",
+    label: "FAQ",
+  },
+  {
+    href: "#kontak",
+    label: "Kontak",
+  },
 ];
 
 export function SiteHeader() {
@@ -27,112 +44,91 @@ export function SiteHeader() {
   const { user, signOut } =
     useAuth();
 
-  // =========================
-  // LOGIN BUTTON
-  // =========================
-  const authBtn = user ? (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={async () => {
-        await signOut();
-        window.location.reload();
-      }}
-      className="gap-2"
-    >
-      <LogOut className="h-4 w-4" />
-      Logout
-    </Button>
-  ) : (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={async () => {
-        const { supabase } =
-          await import(
-            "@/integrations/supabase/client"
-          );
+  async function handleLogout() {
+    try {
+      await signOut();
 
-        const { error } =
-          await supabase.auth.signInWithOAuth(
-            {
-              provider: "google",
-              options: {
-                redirectTo:
-                  window.location.origin,
-              },
-            }
-          );
+      window.location.href = "/";
+    } catch (error) {
+      console.error(error);
 
-        if (error) {
-          alert(error.message);
-        }
-      }}
-      className="gap-2"
-    >
-      <LogIn className="h-4 w-4" />
-      Login
-    </Button>
-  );
-
-  const linkCls =
-    "transition hover:text-foreground";
+      alert("Logout gagal");
+    }
+  }
 
   return (
-    <header className="sticky top-0 z-40 glass">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-4">
+    <header className="sticky top-0 z-[9999] border-b border-white/10 bg-black/40 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         {/* LOGO */}
         <a
-          href="#home"
-          className="flex items-center gap-2 font-semibold tracking-tight"
+          href="/"
+          className="flex items-center gap-3"
         >
-          <div className="grid h-9 w-9 place-items-center rounded-xl btn-solana">
-            <Wifi className="h-5 w-5" />
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-r from-green-400 to-purple-500">
+            <Wifi className="h-5 w-5 text-black" />
           </div>
 
-          <span className="text-lg">
+          <span className="text-xl font-bold">
             Acill
-            <span className="text-gradient">
+            <span className="text-purple-400">
               {" "}
               Net
             </span>
           </span>
         </a>
 
-        {/* DESKTOP MENU */}
-        <nav className="hidden gap-7 text-sm text-muted-foreground md:flex">
-          {navItems.map((n) => (
+        {/* MENU */}
+        <nav className="hidden items-center gap-8 md:flex">
+          {navItems.map((item) => (
             <a
-              key={n.href}
-              href={n.href}
-              className={linkCls}
+              key={item.href}
+              href={item.href}
+              className="text-sm text-gray-300 transition hover:text-white"
             >
-              {n.label}
+              {item.label}
             </a>
           ))}
         </nav>
 
-        {/* RIGHT BUTTON */}
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex md:items-center md:gap-2">
-            {authBtn}
+        {/* RIGHT */}
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <Button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
 
-            <WalletButton />
-          </div>
+                Logout
+              </Button>
 
-          {/* MOBILE BUTTON */}
+              <WalletButton />
+            </>
+          ) : (
+            <Button
+              onClick={() => {
+                window.location.href =
+                  "/auth";
+              }}
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+
+              Login
+            </Button>
+          )}
+
+          {/* MOBILE */}
           <button
-            type="button"
-            aria-label="Buka menu"
             onClick={() =>
-              setOpen((v) => !v)
+              setOpen(!open)
             }
-            className="grid h-10 w-10 place-items-center rounded-lg border border-border/50 md:hidden"
+            className="text-white md:hidden"
           >
             {open ? (
-              <X className="h-5 w-5" />
+              <X />
             ) : (
-              <Menu className="h-5 w-5" />
+              <Menu />
             )}
           </button>
         </div>
@@ -140,77 +136,40 @@ export function SiteHeader() {
 
       {/* MOBILE MENU */}
       {open && (
-        <div className="border-t border-border/50 md:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-6 py-4 text-sm">
-            {navItems.map((n) => (
+        <div className="border-t border-white/10 bg-black/80 md:hidden">
+          <div className="flex flex-col gap-4 px-6 py-4">
+            {navItems.map((item) => (
               <a
-                key={n.href}
-                href={n.href}
+                key={item.href}
+                href={item.href}
                 onClick={() =>
                   setOpen(false)
                 }
-                className="rounded-lg px-3 py-2 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                className="text-gray-300"
               >
-                {n.label}
+                {item.label}
               </a>
             ))}
 
-            <div className="mt-3 flex flex-col gap-2">
-              {authBtn}
-
-              <WalletButton />
-            </div>
-          </nav>
+            {user && (
+              <Button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                Logout
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </header>
   );
 }
 
-export function SiteFooter({
-  rate,
-}: {
-  rate?: number | null;
-}) {
+export function SiteFooter() {
   return (
-    <footer className="border-t border-border/50">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-8 text-sm text-muted-foreground md:flex-row">
-        <span>
-          © {new Date().getFullYear()} Acill Net ISP —
-          built on Solana.
-        </span>
-
-        <nav className="flex gap-5 text-xs">
-          <a
-            href="#tentang"
-            className="hover:text-foreground"
-          >
-            Tentang
-          </a>
-
-          <a
-            href="#kontak"
-            className="hover:text-foreground"
-          >
-            Kontak
-          </a>
-
-          <a
-            href="#faq"
-            className="hover:text-foreground"
-          >
-            FAQ
-          </a>
-        </nav>
-
-        <span className="font-mono text-xs">
-          {rate
-            ? `1 SOL ≈ ${new Intl.NumberFormat(
-                "id-ID"
-              ).format(rate)} IDR`
-            : "powered by Solana"}
-        </span>
-      </div>
+    <footer className="border-t border-white/10 py-8 text-center text-sm text-gray-400">
+      © 2026 Acill Net ISP — built on Solana.
     </footer>
   );
 }

@@ -13,24 +13,11 @@ export function useAuth() {
   const [user, setUser] =
     useState<User | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
-
   const [isAdmin, setIsAdmin] =
     useState(false);
 
-  async function checkAdmin(
-    userId: string
-  ) {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    setIsAdmin(!!data);
-  }
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     supabase.auth
@@ -42,10 +29,20 @@ export function useAuth() {
           data.session?.user ?? null
         );
 
+        // cek admin
         if (data.session?.user) {
-          await checkAdmin(
-            data.session.user.id
-          );
+          const { data: roleData } =
+            await supabase
+              .from("user_roles")
+              .select("role")
+              .eq(
+                "user_id",
+                data.session.user.id
+              )
+              .eq("role", "admin")
+              .maybeSingle();
+
+          setIsAdmin(!!roleData);
         }
 
         setLoading(false);
@@ -61,10 +58,20 @@ export function useAuth() {
           session?.user ?? null
         );
 
+        // cek admin realtime
         if (session?.user) {
-          await checkAdmin(
-            session.user.id
-          );
+          const { data: roleData } =
+            await supabase
+              .from("user_roles")
+              .select("role")
+              .eq(
+                "user_id",
+                session.user.id
+              )
+              .eq("role", "admin")
+              .maybeSingle();
+
+          setIsAdmin(!!roleData);
         } else {
           setIsAdmin(false);
         }
@@ -76,14 +83,20 @@ export function useAuth() {
     };
   }, []);
 
+  async function signOut() {
+    await supabase.auth.signOut();
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    window.location.href = "/";
+  }
+
   return {
     session,
     user,
-    loading,
     isAdmin,
-
-    signOut: async () => {
-      await supabase.auth.signOut();
-    },
+    loading,
+    signOut,
   };
 }
